@@ -349,19 +349,27 @@ get_ip() {
         fi
     done
 
-    if [ ${#IP_LIST[@]} -gt 0 ]; then
-        IP1=${IP_LIST[0]}
-    fi
-    if [ ${#IP_LIST[@]} -gt 1 ]; then
-        IP2=${IP_LIST[1]}
-    fi
+    IP1=${IP_LIST[0]:-""}
+    IP2=${IP_LIST[1]:-""}
 
-    if [ ${#RESPONSIVE_IPS[@]} -gt 0 ]; then
-        IP3=${RESPONSIVE_IPS[0]}
+    UNRESPONSIVE_IPS=()
+    for ip in "${IP_LIST[@]}"; do
+    if [[ ! " ${RESPONSIVE_IPS[@]} " =~ " $ip " ]]; then
+        UNRESPONSIVE_IPS+=("$ip")
     fi
-    if [ ${#RESPONSIVE_IPS[@]} -gt 1 ]; then
+    done
+
+    if [ ${#RESPONSIVE_IPS[@]} -eq 0 ]; then
+    IP3=$IP1
+    IP4=$IP2
+    elif [ ${#RESPONSIVE_IPS[@]} -ge 1 ]; then
+    IP3=${RESPONSIVE_IPS[0]}
+    if [ ${#RESPONSIVE_IPS[@]} -ge 2 ]; then
         IP4=${RESPONSIVE_IPS[1]}
+    else
+        IP4=${UNRESPONSIVE_IPS[0]:-""}
     fi
+fi
 
     purple "$AVAILABLE_IPS"
 }
